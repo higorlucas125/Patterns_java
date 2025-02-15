@@ -13,7 +13,13 @@ public class Demo {
 
     public static void main(String[] args) {
         Scanner s = new Scanner(System.in);
+        System.out.println("Escreve um meio de envio de mensagem: EMAIL,SMS ou PUSH");
         String inputOfData = s.nextLine();
+
+        config(inputOfData);
+    }
+
+    private static void config(String inputOfData){
         switch (inputOfData.toUpperCase()){
             case "EMAIL":
                 notification = new EmailNotification();
@@ -30,8 +36,8 @@ public class Demo {
                 break;
         }
 
-        if(notification != null) {
-            notification.sendMessage("Mensagem automatica");
+        if(notification != null){
+            notification.sendMessage("Enviando uma mensagem");
         }
     }
 }
