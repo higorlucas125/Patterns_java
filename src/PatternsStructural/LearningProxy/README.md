@@ -74,7 +74,7 @@ ao objeto original.
 ## EXPLICANDO DA MINHA MANEIRA QUE ENTENDI E REVISANDO
 
 O padrão de projeto Proxy é um padrão para estrutual que tem como finalidade receber os recuros do cliente e tratar ele
-em tempo de execução passndo para o objeto final, assim analisando quando deve executar ou deixar de executar algumas
+em tempo de execução passando para o objeto final, assim analisando quando deve executar ou deixar de executar algumas
 coisas, gerenciando os recuros presentes
 
 O padrão de projeto Proxy é um padrão estrutural que atua como um intermediário entre o cliente e o objeto real. Ele

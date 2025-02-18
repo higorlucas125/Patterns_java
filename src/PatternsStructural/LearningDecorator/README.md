@@ -46,14 +46,3 @@ colocá-los dentro de invólucros de objetos que contém os comportamentos.
 * A configuração inicial do código de camadas pode ficar bastante feia.
 
 ## EXPLICANDO DA MINHA MANEIRA QUE ENTENDI E REVISANDO
-
-O composite funciona com herarquia de arvore, onde vc possui uma interface e pode compor varios elementos de si mesmo,
-assim podendo criar varios objetos um dentro do outro
-
-Revisão do que você disse:
-
-* O padrão usa uma interface comum para garantir que tanto os objetos simples (folhas) quanto os compostos (nós) possam
-  ser manipulados da mesma forma.
-* Objetos compostos podem conter vários elementos do mesmo tipo, permitindo a criação de uma estrutura de árvore.
-* Isso facilita o uso recursivo, já que podemos percorrer a estrutura chamando os mesmos métodos para elementos simples
-  e compostos.

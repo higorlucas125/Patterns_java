@@ -1,88 +1,82 @@
-# O Guia Definitivo de Proxy para compreender de forma fácil
+# O Guia Definitivo de Command para compreender de forma fácil
 
-## O que é um padrão de projeto Proxy?
+## O que é um padrão de projeto Command?
 
-O Proxy é um padrão de projeto estrutural que permite que você forneça um substituto ou um espaço reservado para outro
-objeto. Um proxy controla o acesso ao objeto original, permitindo que você faça algo ou antes ou depois do pedido chegar
-ao objeto original.
+O Command é um padrão de projeto comportamental que transforma um pedido em um objeto independente que contém toda a
+informação sobre o pedido. Essa transformação permite que você parametrize métodos com diferentes pedidos, atrase ou
+coloque a execução do pedido em uma fila, e suporte operações que não podem ser feitas.
 
 ## Aplicação
 
-* Inicialização preguiçosa (proxy virtual). Este é quando você tem um objeto do serviço peso-pesado que gasta recursos
-  do sistema por estar sempre rodando, mesmo quando você precisa dele de tempos em tempos.
-    * Ao invés de criar um objeto quando a aplicação inicializa, você pode atrasar a inicialização do objeto para um
-      momento que ele é realmente necessário.
+* Utilize o padrão Command quando você quer parametrizar objetos com operações.
+    * O padrão Command podem tornar uma chamada específica para um método em um objeto separado. Essa mudança abre
+      várias possibilidades de usos interessantes: você pode passar comandos como argumentos do método, armazená-los
+      dentro de outros objetos, trocar comandos ligados no momento de execução, etc.
+    * Aqui está um exemplo: você está desenvolvendo um componente GUI como um menu de contexto, e você quer que os
+      usuários sejam capazes de configurar os items do menu que aciona as operações quando um usuário clica em um item.
 
 
-* Controle de acesso (proxy de proteção). Este é quando você quer que apenas clientes específicos usem o objeto do
-  serviço; por exemplo, quando seus objetos são partes cruciais de um sistema operacional e os clientes são várias
-  aplicações iniciadas (incluindo algumas maliciosas).
-    * O proxy pode passar o pedido para o objeto de serviço somente se as credenciais do cliente coincidem com certos
-      critérios.
+* Utilize o padrão Command quando você quer colocar operações em fila, agendar sua execução, ou executá-las remotamente.
+    * Como qualquer outro objeto, um comando pode ser serializado, o que significa convertê-lo em uma string que pode
+      ser facilmente escrita em um arquivo ou base de dados. Mais tarde a string pode ser restaurada no objeto comando
+      inicial. Dessa forma você pode adiar e agendar execuções do comando. Mas isso não é tudo! Da mesma forma, você
+      pode colocar em fila, fazer registro de log ou enviar comandos por uma rede.
 
-* Execução local de um serviço remoto (proxy remoto). Este é quando o objeto do serviço está localizado em um servidor
-  remoto.
-    * Neste caso, o proxy passa o pedido do cliente pela rede, lidando com todos os detalhes sujos pertinentes a se
-      trabalhar com a rede.
-
-* Registros de pedidos (proxy de registro). Este é quando você quer manter um histórico de pedidos ao objeto do serviço
-    * O proxy pode fazer o registro de cada pedido antes de passar ao serviço.
-
-* Cache de resultados de pedidos (proxy de cache). Este é quando você precisa colocar em cache os resultados de pedidos
-  do cliente e gerenciar o ciclo de vida deste cache, especialmente se os resultados são muito grandes.
-    * O proxy pode implementar o armazenamento em cache para pedidos recorrentes que sempre acabam nos mesmos
-      resultados. O proxy pode usar como parâmetros dos pedidos as chaves de cache.
-
-* Referência inteligente. Este é para quando você precisa ser capaz de se livrar de um objeto peso-pesado assim que não
-  há mais clientes que o usam.
-    * O proxy pode manter um registro de clientes que obtiveram uma referência ao objeto serviço ou seus resultados. De
-      tempos em tempos, o proxy pode verificar com os clientes se eles ainda estão ativos. Se a lista cliente ficar
-      vazia, o proxy pode remover o objeto serviço e liberar os recursos de sistema que ficaram empatados.
-    * O proxy pode também fiscalizar se o cliente modificou o objeto do serviço. Então os objetos sem mudança podem ser
-      reutilizados por outros clientes.
+* Utilize o padrão Command quando você quer implementar operações reversíveis.
+    * Embora haja muitas formas de implementar o desfazer/refazer, o padrão Command é talvez a mais popular de todas.
+    * Para ser capaz de reverter operações, você precisa implementar o histórico de operações realizadas. O histórico do
+      comando é uma pilha que contém todos os objetos comando executados junto com seus backups do estado da aplicação
+      relacionados.
+    * Esse método tem duas desvantagens. Primeiro, se não for fácil salvar o estado da aplicação por parte dela ser
+      privada. Esse problema pode ser facilmente mitigado com o padrão Memento.
+    * Segundo, os backups de estado podem consumir uma considerável quantidade de RAM. Portanto, algumas vezes você pode
+      recorrer a uma implementação alternativa: ao invés de restaurar a um estado passado, o comando faz a operação
+      inversa. A operação reversa também cobra um preço: ela pode ter sua implementação difícil ou até impossível.
 
 ## COMO IMPLEMENTAR
 
-1. Se não há uma interface do serviço pré existente, crie uma para fazer os objetos proxy e serviço intercomunicáveis.
-   Extrair a interface da classe serviço nem sempre é possível, porque você precisaria mudar todos os clientes do
-   serviço para usar aquela interface. O plano B é fazer do proxy uma subclasse da classe serviço e, dessa forma, ele
-   herdará a interface do serviço.
-2. Crie a classe proxy. Ela deve ter um campo para armazenar uma referência ao serviço. Geralmente proxies criam e
-   gerenciam todo o ciclo de vida de seus serviços. Em raras ocasiões, um serviço é passado ao proxy através do
-   construtor pelo cliente.
-3. Implemente os métodos proxy de acordo com o propósito deles. Na maioria dos casos, após realizar algum trabalho, o
-   proxy deve delegar o trabalho para o objeto do serviço.
-4. Considere introduzir um método de criação que decide se o cliente obtém um proxy ou serviço real. Isso pode ser um
-   simples método estático na classe do proxy ou um método factory todo implementado.
-5. Considere implementar uma inicialização preguiçosa para o objeto do serviço.
-
+1. Declare a interface comando com um único método de execução
+2. Comece extraindo pedidos para dentro de classes concretas comando que implementam a interface comando. Cada classe
+   deve ter um conjunto de campos para armazenar os argumentos dos pedidos junto com uma referência ao objeto
+   destinatário real. Todos esses valores devem ser inicializados através do construtor do comando.
+3. Identifique classes que vão agir como remetentes. Adicione os campos para armazenar comandos nessas classes.
+   Remetentes devem sempre comunicar-se com seus comandos através da interface comando. Remetentes geralmente não criam
+   objetos comando por conta própria, mas devem obtê-los do código cliente.
+4. Mude os remetentes para que executem o comando ao invés de enviar o pedido para o destinatário diretamente.
+5. O cliente deve inicializar objetos na seguinte ordem:
+   <ul>
+     <li>Crie os destinatários. </li>
+     <li>Crie os comandos, e os associe com os destinatários se necessário. </li>
+     <li>Crie os remetentes, e os associe com os comandos específicos. </li>
+   </ul>
 
 ## Prós e contras
 
-| PRÓS                                                                                                         | 
-|--------------------------------------------------------------------------------------------------------------|
-| Você pode controlar o objeto do serviço sem os clientes ficarem sabendo.                                     |
-| Você pode gerenciar o ciclo de vida de um objeto do serviço quando os clientes não se importam mais com ele. |
-| O proxy trabalha até mesmo se o objeto do serviço ainda não está pronto ou disponível.                       |
-| Princípio aberto/fechado. Você pode introduzir novos proxies sem mudar o serviço ou clientes.                |
+| PRÓS                                                                                                                          | 
+|-------------------------------------------------------------------------------------------------------------------------------|
+| Princípio de responsabilidade única. Você pode desacoplar classes que invocam operações de classes que fazem essas operações. |
+| Princípio aberto/fechado. Você pode introduzir novos comandos na aplicação sem quebrar o código cliente existente.            |
+| Você pode implementar desfazer/refazer.                                                                                       |
+| Você pode implementar a execução adiada de operações.                                                                         |
+| Você pode montar um conjunto de comandos simples em um complexo.                                                              |
 
-| CONTRA                                                                                                                                                   | 
-|----------------------------------------------------------------------------------------------------------------------------------------------------------|
-| O código pode ficar mais complicado uma vez que você precisa introduzir uma série de novas classes. |
-| A resposta de um serviço pode ter atrasos.           |
+| CONTRA                                                                                                                   | 
+|--------------------------------------------------------------------------------------------------------------------------|
+| O código pode ficar mais complicado uma vez que você está introduzindo uma nova camada entre remetentes e destinatários. |
 
 ## EXPLICANDO DA MINHA MANEIRA QUE ENTENDI E REVISANDO
 
-O padrão de projeto Proxy é um padrão para estrutual que tem como finalidade receber os recuros do cliente e tratar ele
-em tempo de execução passndo para o objeto final, assim analisando quando deve executar ou deixar de executar algumas
-coisas, gerenciando os recuros presentes
+O padrão de projeto comportamental Command tem como objetivo criar uma class abastrata onde eu coloque o metodo executor
+onde todas as subclasses devem implementar,
+assim contendo uma comando global onde podemos criar o tipo de comando que queremos.
 
-O padrão de projeto Proxy é um padrão estrutural que atua como um intermediário entre o cliente e o objeto real. Ele
-intercepta as requisições antes de chegarem ao objeto final, permitindo adicionar funcionalidades como controle de
-acesso, cache, log ou até mesmo a criação tardia do objeto real. Isso possibilita gerenciar melhor os recursos e decidir
-quando a execução de certas ações deve ou não ocorrer.
+O padrão de projeto comportamental Command tem o objetivo de encapsular uma solicitação em um objeto, permitindo que os
+clientes emitam comandos sem precisar saber como eles serão executados.
 
-## Proxy de cache
+Isso é feito através de uma classe abstrata (ou interface) que define um método executor (execute()) que todas as
+subclasses devem implementar.
+
+## Comandos do editor de texto e desfazer
 
 Neste exemplo, o padrão Proxy ajuda a implementar a inicialização preguiçosa e o cache em uma biblioteca de terceiros de
 integração ineficiente do YouTube.
