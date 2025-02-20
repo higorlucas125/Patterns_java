@@ -1,92 +1,78 @@
-# O Guia Definitivo de Proxy para compreender de forma fácil
+# O Guia Definitivo de Mediator para compreender de forma fácil
 
-## O que é um padrão de projeto Proxy?
+## O que é um padrão de projeto Mediator?
 
-O Proxy é um padrão de projeto estrutural que permite que você forneça um substituto ou um espaço reservado para outro
-objeto. Um proxy controla o acesso ao objeto original, permitindo que você faça algo ou antes ou depois do pedido chegar
-ao objeto original.
+O Mediator é um padrão de projeto comportamental que permite que você reduza as dependências caóticas entre objetos. O
+padrão restringe comunicações diretas entre objetos e os força a colaborar apenas através do objeto mediador.
 
 ## Aplicação
 
-* Inicialização preguiçosa (proxy virtual). Este é quando você tem um objeto do serviço peso-pesado que gasta recursos
-  do sistema por estar sempre rodando, mesmo quando você precisa dele de tempos em tempos.
-    * Ao invés de criar um objeto quando a aplicação inicializa, você pode atrasar a inicialização do objeto para um
-      momento que ele é realmente necessário.
+* Utilize o padrão Mediator quando é difícil mudar algumas das classes porque elas estão firmemente acopladas a várias
+  outras classes.
+    * O padrão lhe permite extrair todas as relações entre classes para uma classe separada, isolando quaisquer mudanças
+      para um componente específico do resto dos componentes.
 
 
-* Controle de acesso (proxy de proteção). Este é quando você quer que apenas clientes específicos usem o objeto do
-  serviço; por exemplo, quando seus objetos são partes cruciais de um sistema operacional e os clientes são várias
-  aplicações iniciadas (incluindo algumas maliciosas).
-    * O proxy pode passar o pedido para o objeto de serviço somente se as credenciais do cliente coincidem com certos
-      critérios.
+* Utilize o padrão quando você não pode reutilizar um componente em um programa diferente porque ele é muito dependente
+  de outros componentes.
+    * Após você aplicar o Mediator, componentes individuais se tornam alheios aos outros componentes. Eles ainda podem
+      se comunicar entre si, mas de forma indireta, através do objeto mediador. Para reutilizar um componente em uma
+      aplicação diferente, você precisa fornecer a ele uma nova classe mediadora.
 
-* Execução local de um serviço remoto (proxy remoto). Este é quando o objeto do serviço está localizado em um servidor
-  remoto.
-    * Neste caso, o proxy passa o pedido do cliente pela rede, lidando com todos os detalhes sujos pertinentes a se
-      trabalhar com a rede.
-
-* Registros de pedidos (proxy de registro). Este é quando você quer manter um histórico de pedidos ao objeto do serviço
-    * O proxy pode fazer o registro de cada pedido antes de passar ao serviço.
-
-* Cache de resultados de pedidos (proxy de cache). Este é quando você precisa colocar em cache os resultados de pedidos
-  do cliente e gerenciar o ciclo de vida deste cache, especialmente se os resultados são muito grandes.
-    * O proxy pode implementar o armazenamento em cache para pedidos recorrentes que sempre acabam nos mesmos
-      resultados. O proxy pode usar como parâmetros dos pedidos as chaves de cache.
-
-* Referência inteligente. Este é para quando você precisa ser capaz de se livrar de um objeto peso-pesado assim que não
-  há mais clientes que o usam.
-    * O proxy pode manter um registro de clientes que obtiveram uma referência ao objeto serviço ou seus resultados. De
-      tempos em tempos, o proxy pode verificar com os clientes se eles ainda estão ativos. Se a lista cliente ficar
-      vazia, o proxy pode remover o objeto serviço e liberar os recursos de sistema que ficaram empatados.
-    * O proxy pode também fiscalizar se o cliente modificou o objeto do serviço. Então os objetos sem mudança podem ser
-      reutilizados por outros clientes.
+* Utilize o Mediator quando você se encontrar criando um monte de subclasses para componentes apenas para reutilizar
+  algum comportamento básico em vários contextos.
+    * Como todas as relações entre componentes estão contidas dentro do mediador, é fácil definir novas maneiras para
+      esses componentes colaborarem introduzindo novas classes mediadoras, sem ter que mudar os próprios componentes.
 
 ## COMO IMPLEMENTAR
 
-1. Se não há uma interface do serviço pré existente, crie uma para fazer os objetos proxy e serviço intercomunicáveis.
-   Extrair a interface da classe serviço nem sempre é possível, porque você precisaria mudar todos os clientes do
-   serviço para usar aquela interface. O plano B é fazer do proxy uma subclasse da classe serviço e, dessa forma, ele
-   herdará a interface do serviço.
-2. Crie a classe proxy. Ela deve ter um campo para armazenar uma referência ao serviço. Geralmente proxies criam e
-   gerenciam todo o ciclo de vida de seus serviços. Em raras ocasiões, um serviço é passado ao proxy através do
-   construtor pelo cliente.
-3. Implemente os métodos proxy de acordo com o propósito deles. Na maioria dos casos, após realizar algum trabalho, o
-   proxy deve delegar o trabalho para o objeto do serviço.
-4. Considere introduzir um método de criação que decide se o cliente obtém um proxy ou serviço real. Isso pode ser um
-   simples método estático na classe do proxy ou um método factory todo implementado.
-5. Considere implementar uma inicialização preguiçosa para o objeto do serviço.
-
+1. Identifique um grupo de classes firmemente acopladas que se beneficiariam de estar mais independentes (por exemplo,
+   para uma manutenção ou reutilização mais fácil dessas classes).
+2. Declare a interface do mediador e descreva o protocolo de comunicação desejado entre os mediadores e os diversos
+   componentes. Na maioria dos casos, um único método para receber notificações de componentes é suficiente. Essa
+   interface é crucial quando você quer reutilizar classes componente em diferentes contextos. Desde que o componente
+   trabalhe com seu mediador através da interface genérica, você pode ligar o componente com diferentes implementações
+   do mediador.
+3. Implemente a classe concreta do mediador. Essa classe se beneficia por armazenar referências a todos os componentes
+   que gerencia.
+4. Você pode ainda ir além e fazer que o mediador fique responsável pela criação e destruição de objetos componente.
+   Após isso, o mediador pode montar uma fábrica ou uma fachada.
+5. Componentes devem armazenar uma referência ao objeto do mediador. A conexão é geralmente estabelecida no construtor
+   do componente, onde o objeto mediador é passado como um argumento.
+6. Mude o código dos componentes para que eles chamem o método de notificação do mediador ao invés de métodos de outros
+   componentes. Extraia o código que envolve chamar os outros componentes para a classe do mediador. Execute esse código
+   sempre que o mediador receba notificações daquele componente.
 
 ## Prós e contras
 
-| PRÓS                                                                                                         | 
-|--------------------------------------------------------------------------------------------------------------|
-| Você pode controlar o objeto do serviço sem os clientes ficarem sabendo.                                     |
-| Você pode gerenciar o ciclo de vida de um objeto do serviço quando os clientes não se importam mais com ele. |
-| O proxy trabalha até mesmo se o objeto do serviço ainda não está pronto ou disponível.                       |
-| Princípio aberto/fechado. Você pode introduzir novos proxies sem mudar o serviço ou clientes.                |
+| PRÓS                                                                                                                                                                      | 
+|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Princípio de responsabilidade única. Você pode extrair as comunicações entre vários componentes para um único lugar, tornando as de mais fácil entendimento e manutenção. |
+| Princípio aberto/fechado. Você pode introduzir novos mediadores sem ter que mudar os próprios componentes.                                                                |
+| Você pode reduzir o acoplamento entre os vários componentes de um programa.                                                                                               |
+| Você pode reutilizar componentes individuais mais facilmente.                                                                                                             |
 
-| CONTRA                                                                                                                                                   | 
-|----------------------------------------------------------------------------------------------------------------------------------------------------------|
-| O código pode ficar mais complicado uma vez que você precisa introduzir uma série de novas classes. |
-| A resposta de um serviço pode ter atrasos.           |
+| CONTRA                                                    | 
+|-----------------------------------------------------------|
+| Com o tempo um mediador pode evoluir para um Objeto Deus. |
 
 ## EXPLICANDO DA MINHA MANEIRA QUE ENTENDI E REVISANDO
 
-O padrão de projeto Proxy é um padrão para estrutual que tem como finalidade receber os recuros do cliente e tratar ele
-em tempo de execução passndo para o objeto final, assim analisando quando deve executar ou deixar de executar algumas
-coisas, gerenciando os recuros presentes
+O padrão de projeto Mediator é um padrão comportamental onde permite que você reduza as dependecias entre objetos,
+criando assim um mediador entre elas
 
-O padrão de projeto Proxy é um padrão estrutural que atua como um intermediário entre o cliente e o objeto real. Ele
-intercepta as requisições antes de chegarem ao objeto final, permitindo adicionar funcionalidades como controle de
-acesso, cache, log ou até mesmo a criação tardia do objeto real. Isso possibilita gerenciar melhor os recursos e decidir
-quando a execução de certas ações deve ou não ocorrer.
+O padrão de projeto Mediator é um padrão comportamental que tem como objetivo reduzir o acoplamento (dependências
+diretas) entre objetos. Ele faz isso introduzindo um objeto central, chamado de mediador, que atua como um
+intermediário. Em vez de os objetos se comunicarem diretamente uns com os outros, eles interagem por meio desse
+mediador. Isso promove uma comunicação mais organizada e facilita a manutenção do código, já que as dependências entre
+os objetos são centralizadas.
 
-## Proxy de cache
+Por exemplo, imagine um chat em grupo: sem um mediador, cada pessoa teria que falar diretamente com todas as outras. Com
+um mediador (como um servidor ou uma sala de chat), cada pessoa só precisa enviar a mensagem para o mediador, que
+distribui para os outros. Isso reduz a complexidade e os "fios cruzados".
 
-Neste exemplo, o padrão Proxy ajuda a implementar a inicialização preguiçosa e o cache em uma biblioteca de terceiros de
-integração ineficiente do YouTube.
+## Aplicação de notas
 
-O proxy é inestimável quando você precisa adicionar alguns comportamentos adicionais a uma classe cujo código não pode
-ser alterado.
+Este exemplo mostra como organizar muitos elementos da interface de usuário para que eles cooperem com a ajuda de um
+mediador, mas não dependam um do outro.
 
