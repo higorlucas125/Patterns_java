@@ -1,10 +1,9 @@
-# O Guia Definitivo de Proxy para compreender de forma fácil
+# O Guia Definitivo de Memento para compreender de forma fácil
 
-## O que é um padrão de projeto Proxy?
+## O que é um padrão de Memento Proxy?
 
-O Proxy é um padrão de projeto estrutural que permite que você forneça um substituto ou um espaço reservado para outro
-objeto. Um proxy controla o acesso ao objeto original, permitindo que você faça algo ou antes ou depois do pedido chegar
-ao objeto original.
+O Memento é um padrão de projeto comportamental que permite que você salve e restaure o estado anterior de um objeto sem
+revelar os detalhes de sua implementação.
 
 ## Aplicação
 
@@ -82,11 +81,21 @@ intercepta as requisições antes de chegarem ao objeto final, permitindo adicio
 acesso, cache, log ou até mesmo a criação tardia do objeto real. Isso possibilita gerenciar melhor os recursos e decidir
 quando a execução de certas ações deve ou não ocorrer.
 
-## Proxy de cache
+## Editor de formas e desfazer/refazer complexo
 
-Neste exemplo, o padrão Proxy ajuda a implementar a inicialização preguiçosa e o cache em uma biblioteca de terceiros de
-integração ineficiente do YouTube.
+Este editor gráfico permite alterar a cor e a posição das formas na tela. No entanto, qualquer modificação pode ser
+desfeita e repetida.
 
-O proxy é inestimável quando você precisa adicionar alguns comportamentos adicionais a uma classe cujo código não pode
-ser alterado.
+O “desfazer” é baseado na colaboração entre os padrões Memento e Command. O editor rastreia um histórico dos comandos
+executados. Antes de executar qualquer comando, ele faz um backup e o conecta ao objeto de comando. Após a execução, ele
+adiciona o comando executado para o histórico.
+
+Quando um usuário solicita o desfazer, o editor busca um comando recente do histórico e restaura o estado do backup
+mantido dentro desse comando. Se o usuário solicitar outro desfazer, o editor utilizará o próximo comando do histórico e
+assim por diante.
+
+Os comandos revertidos são mantidos no histórico até que o usuário faça algumas modificações nas formas na tela. Isso é
+crucial para refazer comandos desfeitos.
+
+
 
