@@ -1,85 +1,79 @@
 # O Guia Definitivo de Memento para compreender de forma fácil
 
-## O que é um padrão de Memento Proxy?
+Também conhecido como: Lembrança, Retrato, Snapshot
+
+## O que é um padrão de projeto Memento ?
 
 O Memento é um padrão de projeto comportamental que permite que você salve e restaure o estado anterior de um objeto sem
 revelar os detalhes de sua implementação.
 
 ## Aplicação
 
-* Inicialização preguiçosa (proxy virtual). Este é quando você tem um objeto do serviço peso-pesado que gasta recursos
-  do sistema por estar sempre rodando, mesmo quando você precisa dele de tempos em tempos.
-    * Ao invés de criar um objeto quando a aplicação inicializa, você pode atrasar a inicialização do objeto para um
-      momento que ele é realmente necessário.
+* Utilize o padrão Memento quando você quer produzir retratos do estado de um objeto para ser capaz de restaurar um
+  estado anterior do objeto.
+    * O padrão Memento permite que você faça cópias completas do estado de um objeto, incluindo campos privados, e
+      armazená-los separadamente do objeto. Embora a maioria das pessoas vão lembrar desse padrão graças ao caso
+      “desfazer”, ele também é indispensável quando se está lidando com transações (isto é, se você precisa reverter uma
+      operação quando se depara com um erro).
 
 
-* Controle de acesso (proxy de proteção). Este é quando você quer que apenas clientes específicos usem o objeto do
-  serviço; por exemplo, quando seus objetos são partes cruciais de um sistema operacional e os clientes são várias
-  aplicações iniciadas (incluindo algumas maliciosas).
-    * O proxy pode passar o pedido para o objeto de serviço somente se as credenciais do cliente coincidem com certos
-      critérios.
-
-* Execução local de um serviço remoto (proxy remoto). Este é quando o objeto do serviço está localizado em um servidor
-  remoto.
-    * Neste caso, o proxy passa o pedido do cliente pela rede, lidando com todos os detalhes sujos pertinentes a se
-      trabalhar com a rede.
-
-* Registros de pedidos (proxy de registro). Este é quando você quer manter um histórico de pedidos ao objeto do serviço
-    * O proxy pode fazer o registro de cada pedido antes de passar ao serviço.
-
-* Cache de resultados de pedidos (proxy de cache). Este é quando você precisa colocar em cache os resultados de pedidos
-  do cliente e gerenciar o ciclo de vida deste cache, especialmente se os resultados são muito grandes.
-    * O proxy pode implementar o armazenamento em cache para pedidos recorrentes que sempre acabam nos mesmos
-      resultados. O proxy pode usar como parâmetros dos pedidos as chaves de cache.
-
-* Referência inteligente. Este é para quando você precisa ser capaz de se livrar de um objeto peso-pesado assim que não
-  há mais clientes que o usam.
-    * O proxy pode manter um registro de clientes que obtiveram uma referência ao objeto serviço ou seus resultados. De
-      tempos em tempos, o proxy pode verificar com os clientes se eles ainda estão ativos. Se a lista cliente ficar
-      vazia, o proxy pode remover o objeto serviço e liberar os recursos de sistema que ficaram empatados.
-    * O proxy pode também fiscalizar se o cliente modificou o objeto do serviço. Então os objetos sem mudança podem ser
-      reutilizados por outros clientes.
+* Utilize o padrão quando o acesso direto para os campos/getters/setters de um objeto viola seu encapsulamento.
+    * O Memento faz o próprio objeto ser responsável por criar um retrato de seu estado. Nenhum outro objeto pode ler o
+      retrato, fazendo do estado original do objeto algo seguro e confiável.
 
 ## COMO IMPLEMENTAR
 
-1. Se não há uma interface do serviço pré existente, crie uma para fazer os objetos proxy e serviço intercomunicáveis.
-   Extrair a interface da classe serviço nem sempre é possível, porque você precisaria mudar todos os clientes do
-   serviço para usar aquela interface. O plano B é fazer do proxy uma subclasse da classe serviço e, dessa forma, ele
-   herdará a interface do serviço.
-2. Crie a classe proxy. Ela deve ter um campo para armazenar uma referência ao serviço. Geralmente proxies criam e
-   gerenciam todo o ciclo de vida de seus serviços. Em raras ocasiões, um serviço é passado ao proxy através do
-   construtor pelo cliente.
-3. Implemente os métodos proxy de acordo com o propósito deles. Na maioria dos casos, após realizar algum trabalho, o
-   proxy deve delegar o trabalho para o objeto do serviço.
-4. Considere introduzir um método de criação que decide se o cliente obtém um proxy ou serviço real. Isso pode ser um
-   simples método estático na classe do proxy ou um método factory todo implementado.
-5. Considere implementar uma inicialização preguiçosa para o objeto do serviço.
-
+1. Determine qual classe vai fazer o papel de originadora. É importante saber se o programa usa um objeto central deste
+   tipo ou múltiplos objetos pequenos.
+2. Crie a classe memento. Um por um, declare o conjunto dos campos que espelham os campos declarados dentro da classe
+   originadora.
+3. Faça a classe memento ser imutável. Um memento deve aceitar os dados apenas uma vez, através do construtor. A classe
+   não deve ter setters.
+4. Se a sua linguagem de programação suporta classes aninhadas, aninhe o memento dentro da originadora. Se não, extraia
+   uma interface em branco da classe memento e faça todos os outros objetos usá-la para se referir ao memento. Você pode
+   adicionar algumas operações de metadados para a interface, mas nada que exponha o estado da originadora.
+5. Adicione um método para produção de mementos na classe originadora. A originadora deve passar seu estado para o
+   memento através de um ou múltiplos argumentos do construtor do memento.
+   O tipo de retorno do método deve ser o da interface que você extraiu na etapa anterior (assumindo que você extraiu
+   alguma coisa). Por debaixo dos panos, o método de produção de memento deve funcionar diretamente com a classe
+   memento.
+6. Adicione um método para restaurar o estado da classe originadora para sua classe. Ele deve aceitar o objeto memento
+   como um argumento. Se você extraiu uma interface na etapa anterior, faça-a do tipo do parâmetro. Neste caso, você
+   precisa converter o tipo do objeto que está vindo para a classe memento, uma vez que a originadora precisa de acesso
+   total a aquele objeto.
+7. A cuidadora, estando ela representando um objeto comando, um histórico, ou algo completamente diferente, deve saber
+   quando pedir novos mementos da originadora, como armazená-los, e quando restaurar a originadora com um memento em
+   particular.
+8. O elo entre cuidadoras e originadoras deve ser movido para dentro da classe memento. Neste caso, cada memento deve se
+   conectar com a originadora que criou ele. O método de restauração também deve ser movido para a classe memento.
+   Contudo, isso tudo faria sentido somente se a classe memento estiver aninhada dentro da originadora ou a classe
+   originadora fornece setters suficientes para sobrescrever seu estado.
 
 ## Prós e contras
 
-| PRÓS                                                                                                         | 
-|--------------------------------------------------------------------------------------------------------------|
-| Você pode controlar o objeto do serviço sem os clientes ficarem sabendo.                                     |
-| Você pode gerenciar o ciclo de vida de um objeto do serviço quando os clientes não se importam mais com ele. |
-| O proxy trabalha até mesmo se o objeto do serviço ainda não está pronto ou disponível.                       |
-| Princípio aberto/fechado. Você pode introduzir novos proxies sem mudar o serviço ou clientes.                |
+| PRÓS                                                                                                                    | 
+|-------------------------------------------------------------------------------------------------------------------------|
+| Você pode produzir retratos do estado de um objeto sem violar seu encapsulamento.                                       |
+| Você pode simplificar o código da originadora permitindo que a cuidadora mantenha o histórico do estado da originadora. |
 
-| CONTRA                                                                                                                                                   | 
-|----------------------------------------------------------------------------------------------------------------------------------------------------------|
-| O código pode ficar mais complicado uma vez que você precisa introduzir uma série de novas classes. |
-| A resposta de um serviço pode ter atrasos.           |
+| CONTRA                                                                                                                                                           | 
+|------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| A aplicação pode consumir muita RAM se os clientes criarem mementos com muita frequência.                                                                        |
+| Cuidadoras devem acompanhar o ciclo de vida da originadora para serem capazes de destruir mementos obsoletos.                                                    |
+| A maioria das linguagens de programação dinâmicas, tais como PHP, Python, e JavaScript, não conseguem garantir que o estado dentro do memento permaneça intacto. |
 
 ## EXPLICANDO DA MINHA MANEIRA QUE ENTENDI E REVISANDO
 
-O padrão de projeto Proxy é um padrão para estrutual que tem como finalidade receber os recuros do cliente e tratar ele
-em tempo de execução passndo para o objeto final, assim analisando quando deve executar ou deixar de executar algumas
-coisas, gerenciando os recuros presentes
+O memento é um padrão de projeto comportamental que perimite salvar objetos e modificiar objeto guando o seu estado,
+assim podendo reverter a instancia criada no momento
 
-O padrão de projeto Proxy é um padrão estrutural que atua como um intermediário entre o cliente e o objeto real. Ele
-intercepta as requisições antes de chegarem ao objeto final, permitindo adicionar funcionalidades como controle de
-acesso, cache, log ou até mesmo a criação tardia do objeto real. Isso possibilita gerenciar melhor os recursos e decidir
-quando a execução de certas ações deve ou não ocorrer.
+O padrão Memento funciona como um "ctrl+z" da vida real. Ele permite que você salve o estado de um objeto em um
+determinado momento, como se fosse um ponto de restauração, e depois, se precisar, volte para esse estado salvo. Imagine
+que você está editando um texto ou jogando um videogame: você pode fazer várias mudanças, mas se algo der errado,
+consegue voltar praquele momento anterior que você salvou. No Memento, o objeto principal (chamado de "originador") cria
+uma cópia do seu estado e guarda isso num "memento" (tipo uma caixinha de memória). Aí, quem cuida dessa caixinha (o "
+cuidador") pode usar ela pra restaurar o objeto ao estado anterior quando quiser, sem mexer diretamente na estrutura
+interna dele.
 
 ## Editor de formas e desfazer/refazer complexo
 
