@@ -64,8 +64,8 @@ revelar os detalhes de sua implementação.
 
 ## EXPLICANDO DA MINHA MANEIRA QUE ENTENDI E REVISANDO
 
-O memento é um padrão de projeto comportamental que perimite salvar objetos e modificiar objeto guando o seu estado,
-assim podendo reverter a instancia criada no momento
+O memento é um padrão de projeto comportamental que perimite salvar objetos e modificiar objeto guandando o seu estado,
+assim podendo reverter a instância criada no momento
 
 O padrão Memento funciona como um "ctrl+z" da vida real. Ele permite que você salve o estado de um objeto em um
 determinado momento, como se fosse um ponto de restauração, e depois, se precisar, volte para esse estado salvo. Imagine

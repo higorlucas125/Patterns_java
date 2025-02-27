@@ -1,92 +1,114 @@
-# O Guia Definitivo de Proxy para compreender de forma fácil
+# O Guia Definitivo de State para compreender de forma fácil
 
-## O que é um padrão de projeto Proxy?
+Também conhecido como: Estado
 
-O Proxy é um padrão de projeto estrutural que permite que você forneça um substituto ou um espaço reservado para outro
-objeto. Um proxy controla o acesso ao objeto original, permitindo que você faça algo ou antes ou depois do pedido chegar
-ao objeto original.
+## O que é um padrão de projeto State?
+
+O State é um padrão de projeto comportamental que permite que um objeto altere seu comportamento quando seu estado
+interno muda. Parece como se o objeto mudasse de classe.
 
 ## Aplicação
 
-* Inicialização preguiçosa (proxy virtual). Este é quando você tem um objeto do serviço peso-pesado que gasta recursos
-  do sistema por estar sempre rodando, mesmo quando você precisa dele de tempos em tempos.
-    * Ao invés de criar um objeto quando a aplicação inicializa, você pode atrasar a inicialização do objeto para um
-      momento que ele é realmente necessário.
+* Utilize o padrão State quando você tem um objeto que se comporta de maneira diferente dependendo do seu estado atual,
+  quando o número de estados é enorme, e quando o código estado específico muda com frequência.
+    * O padrão sugere que você extraia todo o código estado específico para um conjunto de classes distintas. Como
+      resultado, você pode adicionar novos estados ou mudar os existentes independentemente uns dos outros, reduzindo o
+      custo da manutenção.
 
 
-* Controle de acesso (proxy de proteção). Este é quando você quer que apenas clientes específicos usem o objeto do
-  serviço; por exemplo, quando seus objetos são partes cruciais de um sistema operacional e os clientes são várias
-  aplicações iniciadas (incluindo algumas maliciosas).
-    * O proxy pode passar o pedido para o objeto de serviço somente se as credenciais do cliente coincidem com certos
-      critérios.
+* Utilize o padrão quando você tem uma classe populada com condicionais gigantes que alteram como a classe se comporta
+  de acordo com os valores atuais dos campos da classe.
+    * O padrão State permite que você extraia ramificações dessas condicionais para dentro de métodos de classes
+      correspondentes. Ao fazer isso, você também limpa para fora da classe principal os campos temporários e os métodos
+      auxiliares envolvidos no código estado específico.
 
-* Execução local de um serviço remoto (proxy remoto). Este é quando o objeto do serviço está localizado em um servidor
-  remoto.
-    * Neste caso, o proxy passa o pedido do cliente pela rede, lidando com todos os detalhes sujos pertinentes a se
-      trabalhar com a rede.
-
-* Registros de pedidos (proxy de registro). Este é quando você quer manter um histórico de pedidos ao objeto do serviço
-    * O proxy pode fazer o registro de cada pedido antes de passar ao serviço.
-
-* Cache de resultados de pedidos (proxy de cache). Este é quando você precisa colocar em cache os resultados de pedidos
-  do cliente e gerenciar o ciclo de vida deste cache, especialmente se os resultados são muito grandes.
-    * O proxy pode implementar o armazenamento em cache para pedidos recorrentes que sempre acabam nos mesmos
-      resultados. O proxy pode usar como parâmetros dos pedidos as chaves de cache.
-
-* Referência inteligente. Este é para quando você precisa ser capaz de se livrar de um objeto peso-pesado assim que não
-  há mais clientes que o usam.
-    * O proxy pode manter um registro de clientes que obtiveram uma referência ao objeto serviço ou seus resultados. De
-      tempos em tempos, o proxy pode verificar com os clientes se eles ainda estão ativos. Se a lista cliente ficar
-      vazia, o proxy pode remover o objeto serviço e liberar os recursos de sistema que ficaram empatados.
-    * O proxy pode também fiscalizar se o cliente modificou o objeto do serviço. Então os objetos sem mudança podem ser
-      reutilizados por outros clientes.
+* Utilize o State quando você tem muito código duplicado em muitos estados parecidos e transições de uma máquina de
+  estado baseada em condições
+    * O padrão State permite que você componha hierarquias de classes estado e reduza a duplicação ao extrair código
+      comum para dentro de classes abstratas base.
 
 ## COMO IMPLEMENTAR
 
-1. Se não há uma interface do serviço pré existente, crie uma para fazer os objetos proxy e serviço intercomunicáveis.
-   Extrair a interface da classe serviço nem sempre é possível, porque você precisaria mudar todos os clientes do
-   serviço para usar aquela interface. O plano B é fazer do proxy uma subclasse da classe serviço e, dessa forma, ele
-   herdará a interface do serviço.
-2. Crie a classe proxy. Ela deve ter um campo para armazenar uma referência ao serviço. Geralmente proxies criam e
-   gerenciam todo o ciclo de vida de seus serviços. Em raras ocasiões, um serviço é passado ao proxy através do
-   construtor pelo cliente.
-3. Implemente os métodos proxy de acordo com o propósito deles. Na maioria dos casos, após realizar algum trabalho, o
-   proxy deve delegar o trabalho para o objeto do serviço.
-4. Considere introduzir um método de criação que decide se o cliente obtém um proxy ou serviço real. Isso pode ser um
-   simples método estático na classe do proxy ou um método factory todo implementado.
-5. Considere implementar uma inicialização preguiçosa para o objeto do serviço.
-
+1. Decida qual classe vai agir como contexto. Poderia ser uma classe existente que já tenha código dependente do estado;
+   ou uma nova classe, se o código específico ao estado estiver distribuído em múltiplas classes.
+2. Declare a interface do estado. Embora ela vai espelhar todos os métodos declarados no contexto, mire apenas para
+   aqueles que possam conter comportamento específico ao estado.
+3. Para cada estado real, crie uma classe que deriva da interface do estado. Então vá para os métodos do contexto e
+   extraia todo o código relacionado a aquele estado para dentro de sua nova classe.
+    - Ao mover o código para a classe estado, você pode descobrir que ela depende de membros privados do contexto. Há
+      várias maneiras de contornar isso:
+   <ul>
+     <li>Torne esses campos ou métodos públicos. </li>
+     <li>Transforme o comportamento que você está extraindo para um método público dentro do contexto e chame-o na classe estado. Essa maneira é feia mas rápida, e você pode sempre consertá-la mais tarde.</li>
+     <li>Aninhe as classes estado dentro da classe contexto, mas apenas se sua linguagem de programação suporta classes aninhadas. </li>
+   </ul>
+4. Na classe contexto, adicione um campo de referência do tipo de interface do estado e um setter público que permite
+   sobrescrever o valor daquele campo.
+5. Vá até o método do contexto novamente e substitua as condicionais de estado vazias por chamadas aos métodos
+   correspondentes do objeto estado.
+6. Para trocar o estado do contexto, crie uma instância de uma das classes estado e a passe para o contexto. Você pode
+   fazer isso dentro do próprio contexto, ou em vários estados, ou no cliente. Aonde quer que isso seja feito, a classe
+   se torna dependente da classe estado concreta que ela instanciou.
 
 ## Prós e contras
 
-| PRÓS                                                                                                         | 
-|--------------------------------------------------------------------------------------------------------------|
-| Você pode controlar o objeto do serviço sem os clientes ficarem sabendo.                                     |
-| Você pode gerenciar o ciclo de vida de um objeto do serviço quando os clientes não se importam mais com ele. |
-| O proxy trabalha até mesmo se o objeto do serviço ainda não está pronto ou disponível.                       |
-| Princípio aberto/fechado. Você pode introduzir novos proxies sem mudar o serviço ou clientes.                |
+| PRÓS                                                                                                            | 
+|-----------------------------------------------------------------------------------------------------------------|
+| Princípio de responsabilidade única. Organiza o código relacionado a estados particulares em classes separadas. |
+| Princípio aberto/fechado. Introduz novos estados sem mudar classes de estado ou contexto existentes.            |
+| Simplifica o código de contexto ao eliminar condicionais de máquinas de estado pesadas.                         |
 
-| CONTRA                                                                                                                                                   | 
-|----------------------------------------------------------------------------------------------------------------------------------------------------------|
-| O código pode ficar mais complicado uma vez que você precisa introduzir uma série de novas classes. |
-| A resposta de um serviço pode ter atrasos.           |
+| CONTRA                                                                                                    | 
+|-----------------------------------------------------------------------------------------------------------|
+| Aplicar o padrão pode ser um exagero se a máquina de estado só tem alguns estados ou raramente muda eles. |
 
 ## EXPLICANDO DA MINHA MANEIRA QUE ENTENDI E REVISANDO
 
-O padrão de projeto Proxy é um padrão para estrutual que tem como finalidade receber os recuros do cliente e tratar ele
-em tempo de execução passndo para o objeto final, assim analisando quando deve executar ou deixar de executar algumas
-coisas, gerenciando os recuros presentes
+O padrão de projeto comportamental state é um padrão que altera o obejto assim mudando o comportamento do mesmo, exemplo
+um ecommerce, quando o cliente compra uma mercadoria ela está no estado pedente, caso seja aprovado o estado vai mudar
+para aprovado, caso de errado muda para rejeitado, assim alterando o estado e o seu comportamento
 
-O padrão de projeto Proxy é um padrão estrutural que atua como um intermediário entre o cliente e o objeto real. Ele
-intercepta as requisições antes de chegarem ao objeto final, permitindo adicionar funcionalidades como controle de
-acesso, cache, log ou até mesmo a criação tardia do objeto real. Isso possibilita gerenciar melhor os recursos e decidir
-quando a execução de certas ações deve ou não ocorrer.
+Padrão State (Comportamental)
+O padrão State é usado para permitir que um objeto altere seu comportamento quando seu estado interno muda. Isso é feito
+de forma que o objeto pareça mudar de classe, mas na verdade, ele está apenas delegando o comportamento para diferentes
+objetos que representam os estados possíveis.
 
-## Proxy de cache
+Exemplo do E-commerce
+No contexto de um e-commerce, você pode ter um pedido que passa por diferentes estados, como Pendente, Aprovado,
+Rejeitado, Enviado, Entregue, etc. Cada estado tem um comportamento diferente:
 
-Neste exemplo, o padrão Proxy ajuda a implementar a inicialização preguiçosa e o cache em uma biblioteca de terceiros de
-integração ineficiente do YouTube.
+Pendente: O pedido está aguardando aprovação. Neste estado, o pedido pode ser aprovado ou rejeitado.
 
-O proxy é inestimável quando você precisa adicionar alguns comportamentos adicionais a uma classe cujo código não pode
-ser alterado.
+Aprovado: O pedido foi aprovado e está pronto para ser enviado. Aqui, o pedido pode ser enviado ou, em alguns casos,
+cancelado.
 
+Rejeitado: O pedido foi rejeitado e não será processado. Neste estado, o pedido não pode mais ser alterado.
+
+Enviado: O pedido foi enviado ao cliente e está a caminho.
+
+Entregue: O pedido foi entregue ao cliente.
+
+Como o State Funciona
+Cada estado é representado por uma classe separada que implementa uma interface comum ou uma classe base.
+
+O objeto principal (no caso, o pedido) tem uma referência para o estado atual.
+
+Quando o estado muda, o objeto principal atualiza essa referência para apontar para o novo estado.
+
+O comportamento do objeto principal muda dinamicamente conforme o estado atual.
+
+Vantagens do Padrão State
+Organização do Código: Cada estado é encapsulado em sua própria classe, o que facilita a manutenção e a extensão do
+código.
+
+Eliminação de Condicionais: Em vez de usar várias condicionais (if/else ou switch) para verificar o estado, o
+comportamento é delegado para as classes de estado.
+
+Flexibilidade: Adicionar novos estados é fácil, basta criar uma nova classe que implemente a interface do estado.
+
+## Interface de um tocador de mídia
+
+Neste exemplo, o padrão State permite que os mesmos controles do tocador de mídia se comportem de maneira diferente,
+dependendo do estado atual da reprodução. A classe principal do tocador contém uma referência a um objeto de estado, que
+executa a maior parte do trabalho para o tocador. Algumas ações podem acabar substituindo o objeto de estado por outro,
+o que altera a maneira como o tocador reage às interações do usuário.

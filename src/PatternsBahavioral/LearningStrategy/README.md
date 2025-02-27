@@ -1,10 +1,10 @@
-# O Guia Definitivo de Proxy para compreender de forma fácil
+# O Guia Definitivo de Strategy para compreender de forma fácil
 
-## O que é um padrão de projeto Proxy?
+## O que é um padrão de projeto Strategy?
 
-O Proxy é um padrão de projeto estrutural que permite que você forneça um substituto ou um espaço reservado para outro
-objeto. Um proxy controla o acesso ao objeto original, permitindo que você faça algo ou antes ou depois do pedido chegar
-ao objeto original.
+O Strategy é um padrão de projeto comportamental que transforma um conjunto de comportamentos em objetos e os torna intercambiáveis dentro do objeto de contexto original.
+
+O objeto original, chamado contexto, mantém uma referência a um objeto strategy e o delega a execução do comportamento. Para alterar a maneira como o contexto executa seu trabalho, outros objetos podem substituir o objeto strategy atualmente vinculado por outro.
 
 ## Aplicação
 
@@ -73,20 +73,13 @@ ao objeto original.
 
 ## EXPLICANDO DA MINHA MANEIRA QUE ENTENDI E REVISANDO
 
-O padrão de projeto Proxy é um padrão para estrutual que tem como finalidade receber os recuros do cliente e tratar ele
-em tempo de execução passndo para o objeto final, assim analisando quando deve executar ou deixar de executar algumas
-coisas, gerenciando os recuros presentes
 
-O padrão de projeto Proxy é um padrão estrutural que atua como um intermediário entre o cliente e o objeto real. Ele
-intercepta as requisições antes de chegarem ao objeto final, permitindo adicionar funcionalidades como controle de
-acesso, cache, log ou até mesmo a criação tardia do objeto real. Isso possibilita gerenciar melhor os recursos e decidir
-quando a execução de certas ações deve ou não ocorrer.
 
-## Proxy de cache
+## Método de pagamento em uma aplicação de e-commerce
 
-Neste exemplo, o padrão Proxy ajuda a implementar a inicialização preguiçosa e o cache em uma biblioteca de terceiros de
-integração ineficiente do YouTube.
+Neste exemplo, o padrão Strategy é usado para implementar os vários métodos de pagamento em uma aplicação de e-commerce.
+Depois de selecionar um produto para comprar, o cliente escolhe uma forma de pagamento: Paypal ou cartão de crédito.
 
-O proxy é inestimável quando você precisa adicionar alguns comportamentos adicionais a uma classe cujo código não pode
-ser alterado.
+Strategies concretos não apenas executam o pagamento real, mas também alteram o comportamento do formulário de
+pagamento, fornecendo campos apropriados para registrar os detalhes do pagamento.
 
