@@ -1,92 +1,63 @@
-# O Guia Definitivo de Proxy para compreender de forma fácil
+# O Guia Definitivo de Template Method para compreender de forma fácil
 
-## O que é um padrão de projeto Proxy?
+Também conhecido como: Método padrão
 
-O Proxy é um padrão de projeto estrutural que permite que você forneça um substituto ou um espaço reservado para outro
-objeto. Um proxy controla o acesso ao objeto original, permitindo que você faça algo ou antes ou depois do pedido chegar
-ao objeto original.
+## O que é um padrão de projeto Template Method?
+
+O Template Method é um padrão de projeto comportamental que define o esqueleto de um algoritmo na superclasse mas deixa
+as subclasses sobrescreverem etapas específicas do algoritmo sem modificar sua estrutura.
 
 ## Aplicação
 
-* Inicialização preguiçosa (proxy virtual). Este é quando você tem um objeto do serviço peso-pesado que gasta recursos
-  do sistema por estar sempre rodando, mesmo quando você precisa dele de tempos em tempos.
-    * Ao invés de criar um objeto quando a aplicação inicializa, você pode atrasar a inicialização do objeto para um
-      momento que ele é realmente necessário.
+* Utilize o padrão Template Method quando você quer deixar os clientes estender apenas etapas particulares de um
+  algoritmo, mas não todo o algoritmo e sua estrutura.
+    * O Template Method permite que você transforme um algoritmo monolítico em uma série de etapas individuais que podem
+      facilmente ser estendidas por subclasses enquanto ainda mantém intacta a estrutura definida em uma superclasse.
 
 
-* Controle de acesso (proxy de proteção). Este é quando você quer que apenas clientes específicos usem o objeto do
-  serviço; por exemplo, quando seus objetos são partes cruciais de um sistema operacional e os clientes são várias
-  aplicações iniciadas (incluindo algumas maliciosas).
-    * O proxy pode passar o pedido para o objeto de serviço somente se as credenciais do cliente coincidem com certos
-      critérios.
-
-* Execução local de um serviço remoto (proxy remoto). Este é quando o objeto do serviço está localizado em um servidor
-  remoto.
-    * Neste caso, o proxy passa o pedido do cliente pela rede, lidando com todos os detalhes sujos pertinentes a se
-      trabalhar com a rede.
-
-* Registros de pedidos (proxy de registro). Este é quando você quer manter um histórico de pedidos ao objeto do serviço
-    * O proxy pode fazer o registro de cada pedido antes de passar ao serviço.
-
-* Cache de resultados de pedidos (proxy de cache). Este é quando você precisa colocar em cache os resultados de pedidos
-  do cliente e gerenciar o ciclo de vida deste cache, especialmente se os resultados são muito grandes.
-    * O proxy pode implementar o armazenamento em cache para pedidos recorrentes que sempre acabam nos mesmos
-      resultados. O proxy pode usar como parâmetros dos pedidos as chaves de cache.
-
-* Referência inteligente. Este é para quando você precisa ser capaz de se livrar de um objeto peso-pesado assim que não
-  há mais clientes que o usam.
-    * O proxy pode manter um registro de clientes que obtiveram uma referência ao objeto serviço ou seus resultados. De
-      tempos em tempos, o proxy pode verificar com os clientes se eles ainda estão ativos. Se a lista cliente ficar
-      vazia, o proxy pode remover o objeto serviço e liberar os recursos de sistema que ficaram empatados.
-    * O proxy pode também fiscalizar se o cliente modificou o objeto do serviço. Então os objetos sem mudança podem ser
-      reutilizados por outros clientes.
+* Utilize o padrão quando você tem várias classes que contém algoritmos quase idênticos com algumas diferenças menores.
+  Como resultado, você pode querer modificar todas as classes quando o algoritmo muda
+    * Quando você transforma tal algoritmo em um Template Method, você também pode erguer as etapas com implementações
+      similares para dentro de uma superclasse, eliminando duplicação de código. Códigos que variam entre subclasses
+      podem permanecer dentro das subclasses.
 
 ## COMO IMPLEMENTAR
 
-1. Se não há uma interface do serviço pré existente, crie uma para fazer os objetos proxy e serviço intercomunicáveis.
-   Extrair a interface da classe serviço nem sempre é possível, porque você precisaria mudar todos os clientes do
-   serviço para usar aquela interface. O plano B é fazer do proxy uma subclasse da classe serviço e, dessa forma, ele
-   herdará a interface do serviço.
-2. Crie a classe proxy. Ela deve ter um campo para armazenar uma referência ao serviço. Geralmente proxies criam e
-   gerenciam todo o ciclo de vida de seus serviços. Em raras ocasiões, um serviço é passado ao proxy através do
-   construtor pelo cliente.
-3. Implemente os métodos proxy de acordo com o propósito deles. Na maioria dos casos, após realizar algum trabalho, o
-   proxy deve delegar o trabalho para o objeto do serviço.
-4. Considere introduzir um método de criação que decide se o cliente obtém um proxy ou serviço real. Isso pode ser um
-   simples método estático na classe do proxy ou um método factory todo implementado.
-5. Considere implementar uma inicialização preguiçosa para o objeto do serviço.
-
+1. Analise o algoritmo alvo para ver se você quer quebrá-lo em etapas. Considere quais etapas são comuns a todas as
+   subclasses e quais permanecerão únicas.
+2. Crie a classe abstrata base e declare o método padrão e o conjunto de métodos abstratos representando as etapas do
+   algoritmo. Contorne a estrutura do algoritmo no método padrão ao executar as etapas correspondentes. Considere tornar
+   o método padrão como final para prevenir subclasses de sobrescrevê-lo.
+3. Tudo bem se todas as etapas terminarem sendo abstratas. Contudo, alguns passos podem se beneficiar de ter uma
+   implementação padrão. Subclasses não tem que implementar esses métodos.
+4. Pense em adicionar ganchos entre as etapas cruciais do algoritmo.
+5. Para cada variação do algoritmo, crie uma nova subclasse concreta. Ela deve implementar todas as etapas abstratas,
+   mas pode também sobrescrever algumas das opcionais.
 
 ## Prós e contras
 
-| PRÓS                                                                                                         | 
-|--------------------------------------------------------------------------------------------------------------|
-| Você pode controlar o objeto do serviço sem os clientes ficarem sabendo.                                     |
-| Você pode gerenciar o ciclo de vida de um objeto do serviço quando os clientes não se importam mais com ele. |
-| O proxy trabalha até mesmo se o objeto do serviço ainda não está pronto ou disponível.                       |
-| Princípio aberto/fechado. Você pode introduzir novos proxies sem mudar o serviço ou clientes.                |
+| PRÓS                                                                                                                                                                     | 
+|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Você pode deixar clientes sobrescrever apenas certas partes de um algoritmo grande, tornando-os menos afetados por mudanças que acontece por outras partes do algoritmo. |
+| Você pode elevar o código duplicado para uma superclasse.                                                                                                                |
 
-| CONTRA                                                                                                                                                   | 
-|----------------------------------------------------------------------------------------------------------------------------------------------------------|
-| O código pode ficar mais complicado uma vez que você precisa introduzir uma série de novas classes. |
-| A resposta de um serviço pode ter atrasos.           |
+| CONTRA                                                                                                                     | 
+|----------------------------------------------------------------------------------------------------------------------------|
+| Alguns clientes podem ser limitados ao fornecer o esqueleto de um algoritmo.                                               |
+| Você pode violar o princípio de substituição de Liskov ao suprimir uma etapa padrão de implementação através da subclasse. |
+| Implementações do padrão Template Method tendem a ser mais difíceis de se manter quanto mais etapas eles tiverem.          |
 
 ## EXPLICANDO DA MINHA MANEIRA QUE ENTENDI E REVISANDO
 
-O padrão de projeto Proxy é um padrão para estrutual que tem como finalidade receber os recuros do cliente e tratar ele
-em tempo de execução passndo para o objeto final, assim analisando quando deve executar ou deixar de executar algumas
-coisas, gerenciando os recuros presentes
+O padrão de projeto Template method é um padrão onde voce pega varias classes que fazem a mesma coisas e transforme algo
+em comum numa classe abastrata que pode ser utilizada reduzindo codigo
 
-O padrão de projeto Proxy é um padrão estrutural que atua como um intermediário entre o cliente e o objeto real. Ele
-intercepta as requisições antes de chegarem ao objeto final, permitindo adicionar funcionalidades como controle de
-acesso, cache, log ou até mesmo a criação tardia do objeto real. Isso possibilita gerenciar melhor os recursos e decidir
-quando a execução de certas ações deve ou não ocorrer.
+"O padrão Template Method pega várias classes que têm um processo parecido, extrai o que é comum em uma classe abstrata
+e define uma estrutura geral que elas podem seguir. Assim, evita repetir código e deixa as subclasses cuidarem só das
+partes específicas que mudam."
 
-## Proxy de cache
+## Substituindo etapas padrão de um algoritmo
 
-Neste exemplo, o padrão Proxy ajuda a implementar a inicialização preguiçosa e o cache em uma biblioteca de terceiros de
-integração ineficiente do YouTube.
-
-O proxy é inestimável quando você precisa adicionar alguns comportamentos adicionais a uma classe cujo código não pode
-ser alterado.
+Neste exemplo, o padrão Template Method define um algoritmo de trabalho com uma rede social. As subclasses que
+correspondem a uma rede social específica, implementam essas etapas de acordo com a API fornecida pela rede social.
 

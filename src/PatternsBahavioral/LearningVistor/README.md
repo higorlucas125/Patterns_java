@@ -1,92 +1,83 @@
-# O Guia Definitivo de Proxy para compreender de forma fácil
+# O Guia Definitivo de Visitor para compreender de forma fácil
 
-## O que é um padrão de projeto Proxy?
+Também conhecido como: Visitante
 
-O Proxy é um padrão de projeto estrutural que permite que você forneça um substituto ou um espaço reservado para outro
-objeto. Um proxy controla o acesso ao objeto original, permitindo que você faça algo ou antes ou depois do pedido chegar
-ao objeto original.
+## O que é um padrão de projeto Visitor?
+
+O Visitor é um padrão de projeto comportamental que permite que você separe algoritmos dos objetos nos quais eles
+operam.
 
 ## Aplicação
 
-* Inicialização preguiçosa (proxy virtual). Este é quando você tem um objeto do serviço peso-pesado que gasta recursos
-  do sistema por estar sempre rodando, mesmo quando você precisa dele de tempos em tempos.
-    * Ao invés de criar um objeto quando a aplicação inicializa, você pode atrasar a inicialização do objeto para um
-      momento que ele é realmente necessário.
+* Utilize o Visitor quando você precisa fazer uma operação em todos os elementos de uma estrutura de objetos complexa (
+  por exemplo, uma árvore de objetos).
+    * O padrão Visitor permite que você execute uma operação sobre um conjunto de objetos com diferentes classes ao ter
+      o objeto visitante implementando diversas variantes da mesma operação, que correspondem a todas as classes alvo.
 
 
-* Controle de acesso (proxy de proteção). Este é quando você quer que apenas clientes específicos usem o objeto do
-  serviço; por exemplo, quando seus objetos são partes cruciais de um sistema operacional e os clientes são várias
-  aplicações iniciadas (incluindo algumas maliciosas).
-    * O proxy pode passar o pedido para o objeto de serviço somente se as credenciais do cliente coincidem com certos
-      critérios.
+* Utilize o Visitor para limpar a lógica de negócio de comportamentos auxiliares.
+    * O padrão permite que você torne classes primárias de sua aplicação mais focadas em seu trabalho principal ao
+      extrair todos os comportamentos em um conjunto de classes visitantes.
 
-* Execução local de um serviço remoto (proxy remoto). Este é quando o objeto do serviço está localizado em um servidor
-  remoto.
-    * Neste caso, o proxy passa o pedido do cliente pela rede, lidando com todos os detalhes sujos pertinentes a se
-      trabalhar com a rede.
-
-* Registros de pedidos (proxy de registro). Este é quando você quer manter um histórico de pedidos ao objeto do serviço
-    * O proxy pode fazer o registro de cada pedido antes de passar ao serviço.
-
-* Cache de resultados de pedidos (proxy de cache). Este é quando você precisa colocar em cache os resultados de pedidos
-  do cliente e gerenciar o ciclo de vida deste cache, especialmente se os resultados são muito grandes.
-    * O proxy pode implementar o armazenamento em cache para pedidos recorrentes que sempre acabam nos mesmos
-      resultados. O proxy pode usar como parâmetros dos pedidos as chaves de cache.
-
-* Referência inteligente. Este é para quando você precisa ser capaz de se livrar de um objeto peso-pesado assim que não
-  há mais clientes que o usam.
-    * O proxy pode manter um registro de clientes que obtiveram uma referência ao objeto serviço ou seus resultados. De
-      tempos em tempos, o proxy pode verificar com os clientes se eles ainda estão ativos. Se a lista cliente ficar
-      vazia, o proxy pode remover o objeto serviço e liberar os recursos de sistema que ficaram empatados.
-    * O proxy pode também fiscalizar se o cliente modificou o objeto do serviço. Então os objetos sem mudança podem ser
-      reutilizados por outros clientes.
+* Utilize o padrão quando um comportamento faz sentido apenas dentro de algumas classes de uma uma hierarquia de classe,
+  mas não em outras.
+    * Você pode extrair esse comportamento para uma classe visitante separada e implementar somente aqueles métodos
+      visitantes que aceitam objetos de classes relevantes, deixando o resto vazio.
 
 ## COMO IMPLEMENTAR
 
-1. Se não há uma interface do serviço pré existente, crie uma para fazer os objetos proxy e serviço intercomunicáveis.
-   Extrair a interface da classe serviço nem sempre é possível, porque você precisaria mudar todos os clientes do
-   serviço para usar aquela interface. O plano B é fazer do proxy uma subclasse da classe serviço e, dessa forma, ele
-   herdará a interface do serviço.
-2. Crie a classe proxy. Ela deve ter um campo para armazenar uma referência ao serviço. Geralmente proxies criam e
-   gerenciam todo o ciclo de vida de seus serviços. Em raras ocasiões, um serviço é passado ao proxy através do
-   construtor pelo cliente.
-3. Implemente os métodos proxy de acordo com o propósito deles. Na maioria dos casos, após realizar algum trabalho, o
-   proxy deve delegar o trabalho para o objeto do serviço.
-4. Considere introduzir um método de criação que decide se o cliente obtém um proxy ou serviço real. Isso pode ser um
-   simples método estático na classe do proxy ou um método factory todo implementado.
-5. Considere implementar uma inicialização preguiçosa para o objeto do serviço.
-
+1. Declare a interface da visitante com um conjunto de métodos “visitando”, um para cada classe elemento concreta que
+   existe no programa.
+2. Declare a interface elemento. Se você está trabalhando com uma hierarquia de classes elemento existente, adicione o
+   método de “aceitação” para a classe base da hierarquia. Esse método deve aceitar um objeto visitante como um
+   argumento.
+3. Implemente os métodos de aceitação em todas as classes elemento concretas. Esses métodos devem simplesmente
+   redirecionar a chamada para um método visitante no objeto visitante que está vindo e que coincide com a classe do
+   elemento atual.
+4. As classes elemento devem trabalhar apenas com visitantes através da interface do visitante. Os visitantes, contudo,
+   devem estar cientes de todas as classes elemento concretas referenciadas como tipos de parâmetros dos métodos
+   visitantes.
+5. Para cada comportamento que não possa ser implementado dentro da hierarquia do elemento, crie uma nova classe
+   visitante concreta e implemente todos os métodos visitantes.
+   Você pode encontrar uma situação onde o visitante irá necessitar acesso para alguns membros privados da classe
+   elemento. Neste caso, você pode ou fazer desses campos ou métodos públicos, violando o encapsulamento do elemento, ou
+   aninhando a classe visitante na classe elemento. Está última só é possível se você tiver sorte e estiver trabalhando
+   com uma linguagem de programação que suporta classes aninhadas.
+6. O cliente deve criar objetos visitantes e passá-los para os elementos através dos métodos de “aceitação”.
 
 ## Prós e contras
 
-| PRÓS                                                                                                         | 
-|--------------------------------------------------------------------------------------------------------------|
-| Você pode controlar o objeto do serviço sem os clientes ficarem sabendo.                                     |
-| Você pode gerenciar o ciclo de vida de um objeto do serviço quando os clientes não se importam mais com ele. |
-| O proxy trabalha até mesmo se o objeto do serviço ainda não está pronto ou disponível.                       |
-| Princípio aberto/fechado. Você pode introduzir novos proxies sem mudar o serviço ou clientes.                |
+| PRÓS                                                                                                                                                                                                                                                                         | 
+|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Princípio aberto/fechado. Você pode introduzir um novo comportamento que pode funcionar com objetos de diferentes classes sem mudar essas classes.                                                                                                                           |
+| Princípio de responsabilidade única. Você pode mover múltiplas versões do mesmo comportamento para dentro da mesma classe.                                                                                                                                                   |
+| Um objeto visitante pode acumular algumas informações úteis enquanto trabalha com vários objetos. Isso pode ser interessante quando você quer percorrer algum objeto de estrutura complexa, tais como um objeto árvore, e aplicar o visitante para cada objeto da estrutura. |
 
-| CONTRA                                                                                                                                                   | 
-|----------------------------------------------------------------------------------------------------------------------------------------------------------|
-| O código pode ficar mais complicado uma vez que você precisa introduzir uma série de novas classes. |
-| A resposta de um serviço pode ter atrasos.           |
+| CONTRA                                                                                                                          | 
+|---------------------------------------------------------------------------------------------------------------------------------|
+| Você precisa atualizar todos os visitantes a cada vez que a classe é adicionada ou removida da hierarquia de elementos.         |
+| Visitantes podem não ter seu acesso permitido para campos e métodos privados dos elementos que eles deveriam estar trabalhando. |
 
 ## EXPLICANDO DA MINHA MANEIRA QUE ENTENDI E REVISANDO
 
-O padrão de projeto Proxy é um padrão para estrutual que tem como finalidade receber os recuros do cliente e tratar ele
-em tempo de execução passndo para o objeto final, assim analisando quando deve executar ou deixar de executar algumas
-coisas, gerenciando os recuros presentes
+O padrão de projeto comportamental Visitor é um padrão que permite a adição de novos métodos na hieraquia sem precisar
+altera as classes já existentes
 
-O padrão de projeto Proxy é um padrão estrutural que atua como um intermediário entre o cliente e o objeto real. Ele
-intercepta as requisições antes de chegarem ao objeto final, permitindo adicionar funcionalidades como controle de
-acesso, cache, log ou até mesmo a criação tardia do objeto real. Isso possibilita gerenciar melhor os recursos e decidir
-quando a execução de certas ações deve ou não ocorrer.
+O padrão Visitor é um padrão comportamental que permite adicionar novas operações (ou comportamentos) a uma hierarquia
+de classes sem precisar modificar diretamente as classes existentes. Ele é especialmente útil quando você tem uma
+estrutura de objetos (como uma árvore ou uma coleção) e quer realizar operações distintas sobre esses objetos, mas sem"
+poluir" as suas classes com código que não faz parte da responsabilidade principal delas.
 
-## Proxy de cache
+A ideia principal é separar o algoritmo (a operação que você quer executar) das classes que representam os dados (os
+elementos da hierarquia). Isso é feito criando uma classe Visitor que "visita" cada objeto da hierarquia e executa a
+operação desejada. As classes da hierarquia só precisam implementar um método simples, como accept(Visitor visitor), que
+delega o trabalho ao Visitor.
 
-Neste exemplo, o padrão Proxy ajuda a implementar a inicialização preguiçosa e o cache em uma biblioteca de terceiros de
-integração ineficiente do YouTube.
+## Exportando formas para XML
 
-O proxy é inestimável quando você precisa adicionar alguns comportamentos adicionais a uma classe cujo código não pode
-ser alterado.
+Neste exemplo, gostaríamos de exportar um conjunto de formas geométricas para XML. O problema é que não queremos alterar
+o código de formas, diretamente ou, pelo menos, manter as alterações ao mínimo.
+
+No final, o padrão Visitor estabelece uma infraestrutura que nos permite adicionar comportamentos à hierarquia de formas
+sem alterar o código existente dessas classes.
 
