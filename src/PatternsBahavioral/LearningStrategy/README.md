@@ -2,9 +2,12 @@
 
 ## O que é um padrão de projeto Strategy?
 
-O Strategy é um padrão de projeto comportamental que transforma um conjunto de comportamentos em objetos e os torna intercambiáveis dentro do objeto de contexto original.
+O Strategy é um padrão de projeto comportamental que transforma um conjunto de comportamentos em objetos e os torna
+intercambiáveis dentro do objeto de contexto original.
 
-O objeto original, chamado contexto, mantém uma referência a um objeto strategy e o delega a execução do comportamento. Para alterar a maneira como o contexto executa seu trabalho, outros objetos podem substituir o objeto strategy atualmente vinculado por outro.
+O objeto original, chamado contexto, mantém uma referência a um objeto strategy e o delega a execução do comportamento.
+Para alterar a maneira como o contexto executa seu trabalho, outros objetos podem substituir o objeto strategy
+atualmente vinculado por outro.
 
 ## Aplicação
 
@@ -56,7 +59,6 @@ O objeto original, chamado contexto, mantém uma referência a um objeto strateg
    simples método estático na classe do proxy ou um método factory todo implementado.
 5. Considere implementar uma inicialização preguiçosa para o objeto do serviço.
 
-
 ## Prós e contras
 
 | PRÓS                                                                                                         | 
@@ -66,14 +68,17 @@ O objeto original, chamado contexto, mantém uma referência a um objeto strateg
 | O proxy trabalha até mesmo se o objeto do serviço ainda não está pronto ou disponível.                       |
 | Princípio aberto/fechado. Você pode introduzir novos proxies sem mudar o serviço ou clientes.                |
 
-| CONTRA                                                                                                                                                   | 
-|----------------------------------------------------------------------------------------------------------------------------------------------------------|
+| CONTRA                                                                                              | 
+|-----------------------------------------------------------------------------------------------------|
 | O código pode ficar mais complicado uma vez que você precisa introduzir uma série de novas classes. |
-| A resposta de um serviço pode ter atrasos.           |
+| A resposta de um serviço pode ter atrasos.                                                          |
 
 ## EXPLICANDO DA MINHA MANEIRA QUE ENTENDI E REVISANDO
 
-
+O padrão Strategy permite que você defina uma família de algoritmos, encapsule cada um deles e os torne intercambiáveis.
+Isso permite que o algoritmo varie independentemente dos clientes que o utilizam. Assim, ao invés de definir um
+comportamento fixo dentro de uma classe, o Strategy permite injetar diferentes estratégias (comportamentos) em tempo de
+execução.
 
 ## Método de pagamento em uma aplicação de e-commerce
 

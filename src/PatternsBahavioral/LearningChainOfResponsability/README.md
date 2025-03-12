@@ -79,8 +79,10 @@ qualquer futuro processamento.
 
 ## EXPLICANDO DA MINHA MANEIRA QUE ENTENDI E REVISANDO
 
-O padrão de projeto chain of responsability que é comportamental, ele é como uma esteira, onde o pedido do cliente é passado por objeto em objeto até ser solucionado, não precisa nescessariamente ser sequencial.
-é como uma ligação para o suporte de qualquer empresa, sempre vai existir uma URA e depois irá passar para um tecnico caso o seu caso não seja resolvido
+O padrão de projeto chain of responsability que é comportamental, ele é como uma esteira, onde o pedido do cliente é
+passado por objeto em objeto até ser solucionado, não precisa nescessariamente ser sequencial.
+é como uma ligação para o suporte de qualquer empresa, sempre vai existir uma URA e depois irá passar para um tecnico
+caso o seu caso não seja resolvido
 
 ## Filtrando o acesso
 
