@@ -11,6 +11,10 @@ public class SquarePegAdapter extends RoundPeg {
         this.peg = peg;
     }
 
+    /**
+     * Calculate a radius of the smallest circle that can fit this peg.
+     * @return double the radius of the smallest circle that can fit this peg.
+     */
     @Override
     public double getRadius(){
         double result;
