@@ -14,13 +14,13 @@ public class Demo {
         characterPlayers.setDados("novos dados");
         characterPlayers.setItems("Dragon lore");
 
-        System.out.printf("Character 1: %s\n", characterPlayers.name.getClass().hashCode());
+        System.out.printf("Character 1: %s\n", System.identityHashCode(characterPlayers.name));
 
         //SHALOW CLONE
         CharacterPlayers characterPlayers2 = (CharacterPlayers) characterPlayers.shallowClone();
         characterPlayers2.name="Player 2";
 
-        System.out.printf("Character 2: %s\n", characterPlayers2);
+        System.out.printf("Character 2: %s\n", System.identityHashCode(characterPlayers2.name));
         System.out.printf("Character 2: %s\n", characterPlayers2.name.getClass().hashCode());
 
 
@@ -29,6 +29,6 @@ public class Demo {
         characterPlayers3.name="Player 3";
 
 
-        System.out.printf("Character 3: %s\n", characterPlayers3.name.getClass().hashCode());
+        System.out.printf("Character 3: %s\n", System.identityHashCode(characterPlayers3.name));
     }
 }

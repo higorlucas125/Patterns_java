@@ -143,6 +143,41 @@ Você trabalha em um sistema de jogos e precisa criar personagens com **muitas c
 - Implementar `clone()` para criar cópias eficientes de personagens existentes.
 - Diferenciar **shallow copy** de **deep copy** na implementação.
 
+## 6. Singleton
+### Desafio:
+Você deve criar um sistema em Java onde um gerenciador de produtos seja implementado utilizando o padrão Singleton.
+- Criar uma classe Produto com os seguintes atributos:
+
+  * id (inteiro)
+
+  * nome (String)
+
+  * preco (double)
+
+- Criar uma classe ProdutoService que será um Singleton e servirá para:
+  * Adicionar um produto
+  * Listar produtos
+
+- Criar um programa principal (main) onde você:
+   * Adiciona pelo menos 3 produtos
+   * Lista todos os produtos cadastrados
+
+🔨 Restrições
+
+✅ O ProdutoService deve garantir que apenas uma instância exista na aplicação.
+
+✅ Deve usar um método getInstance() para acessar o ProdutoService.
+
+✅ Não pode usar frameworks externos (apenas Java puro).
+
+📌 Exemplo de Saída Esperada
+```
+Lista de Produtos:
+1 - Celular - R$ 1999.99
+2 - Notebook - R$ 3999.49
+3 - Fone de Ouvido - R$ 199.90
+```
+
 ## Como Participar?
 1. Escolha um ou mais desafios para resolver.
 2. Implemente a solução em sua linguagem de programação preferida.
